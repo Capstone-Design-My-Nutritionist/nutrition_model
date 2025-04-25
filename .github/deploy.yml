@@ -1,0 +1,47 @@
+name: CI & Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+      - uses: actions/checkout@v4
+
+      - name: Build & push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nutrition-api:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH & Restart container
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/app/nutrition-api
+
+            # 1) .env 파일을 secrets 에서 꺼내서 덮어쓰기
+            cat > .env <<EOF
+            DB_URL=${{ secrets.DATABASE_URL }}
+            EOF
+            
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nutrition-api:latest
+            docker stop nutrition-api || true
+            docker rm nutrition-api  || true
+            docker run -d \
+              --name nutrition-api \
+              -p 8000:8000 \
+              --env-file .env"
+              ${{ secrets.DOCKERHUB_USERNAME }}/nutrition-api:latest
