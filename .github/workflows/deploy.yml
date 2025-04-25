@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: build
+    name: Build & Push Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -20,7 +20,8 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/nutrition-api:latest
 
   deploy:
-    needs: build-and-push
+    name: SSH & Deploy to EC2
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: SSH & Restart container
