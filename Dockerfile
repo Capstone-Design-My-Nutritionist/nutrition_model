@@ -16,4 +16,4 @@ COPY train/ ./train
 EXPOSE 8000
 
 # 6) uvicorn 으로 실행
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/recommend"]
