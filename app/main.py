@@ -45,7 +45,7 @@ class RecommendResponseItem(BaseModel):
 # app.include_router(foodlens.router,  prefix="/foodlens",   tags=["foodlens"])
 # app.include_router(meal_log.router,  prefix="/meals",      tags=["meals"])
 
-@app.get("/{user_id}", response_model=List[RecommendResponseItem])
+@app.get("/recommend/{user_id}", response_model=List[RecommendResponseItem])
 def recommend_endpoint(user_id: int, top_n: int = 5):
     """
     개인 맞춤 음식 추천
